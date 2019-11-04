@@ -1,0 +1,270 @@
+---
+title: "Initiation aux Statistiques avec R - TP 3"
+output: 
+  learnr::tutorial:
+    encoding: UTF-8
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = FALSE)
+tutorial_options(exercise.timelimit = Inf)
+```
+
+**TP3 - Test d'hypothèse**
+
+##
+
+L’objectif de ce TP est d’effectuer des tests d’hypothèse sur R.
+
+Nous travaillerons sur la variable "CL" du tableau "crabs" dans le package MASS.
+
+Nous considérerons toujours un risque &#945; = 5%. Les tables statistiques sont fournies en fin de tutoriel.
+
+Chargez tout d'abord les données.
+
+```{r load-data, exercise=TRUE}
+
+```
+
+```{r load-data-solution}
+data(crabs, package = "MASS")
+```
+
+```{r}
+data(crabs, package = "MASS")
+```
+
+## PARTIE 1 - INFLUENCE DU SEXE
+
+### A - TEST DE SHAPIRO
+
+Vous allez tester la normalité des données des mâles et des femelles des crabes bleus.
+
+```{r}
+cl_males <- crabs[crabs$sp == "B" & crabs$sex == "M", "CL"]
+cl_femelles <- crabs[crabs$sp == "B" & crabs$sex == "F", "CL"]
+
+```
+
+
+Avant d’effectuer le test de Shapiro, formulez les hypothèses H0 et H1. 
+
+###
+
+> H0 : Les données suivent une loi normale.
+>
+> H1 : Les données ne suivent pas une loi normale.
+
+```{r shapiro, exercise=TRUE}
+
+```
+
+```{r shapiro-solution}
+cl_males <- crabs[crabs$sp == "B" & crabs$sex == "M", "CL"]
+cl_femelles <- crabs[crabs$sp == "B" & crabs$sex == "F", "CL"]
+
+shapiro.test(cl_males)
+shapiro.test(cl_femelles)
+```
+
+Quelle est la valeur de la statistique de référence (regardez la table statistique) ?
+
+
+
+###
+
+W~&#945;=0.05|n=50~ = 0.947
+
+```{r shapiro-p}
+quiz(
+  question("La p-value est-elle supérieure ou inférieure à &#945; ",
+           answer("inférieure"),
+           answer("supérieure", correct = TRUE))
+  )
+```
+
+D'après la comparaison de W avec W~&#945;=0.05|n=50~ et la valeur de la p-value:
+
+```{r shapiro-h0}
+quiz(
+  question("Les données suivent-elles une loi normale ?",
+           answer("oui", correct = TRUE),
+           answer("non"))
+)
+```
+
+### B - TEST DE FISHER
+Tester l'égalité des variances avec le test de Fisher.
+
+Formulez les hypothèses H1 et H0.
+
+###
+
+> H0: Les variances sont égales
+> 
+> H1: Les variances sont différentes
+
+```{r fisher, exercise=TRUE}
+
+```
+
+```{r fisher-solution}
+var.test(cl_males, cl_femelles)
+```
+
+Quelle est la valeur de la statistique de référence ?
+
+###
+
+F~50/50~ = 1.60
+
+D'après la comparaison de F avec F~50/50~ et la valeur de la p-value:
+
+```{r fisher-h0}
+quiz(
+  question("Peut-on rejeter H0 ?",
+           answer("oui"),
+           answer("non", correct = TRUE))
+)
+```
+
+### C - TEST DE STUDENT
+
+Vous allez tester l'égalité de la taille moyenne des carapaces entre les deux sexes de crabes bleus.
+
+Formulez les hypothèses H0 et H1
+
+###
+
+> H0: Les moyennes sont égales
+>
+> H1: Les moyennes sont différentes
+
+```{r student, exercise=TRUE}
+
+```
+
+```{r student-solution}
+t.test(cl_males, cl_femelles)
+```
+
+Quelle est la valeur de la statistique de référence ?
+
+###
+
+t~&#945;=0.05/ddl=120~ = 1.98 < t~&#945;=0.05/ddl=98~ <t~&#945;=0.05/ddl=80~ = 2
+
+D'après la comparaison de t avec t~&#945;=0.05/ddl=98~ et la valeur de la p-value:
+
+```{r student-h0}
+quiz(
+  question("Peut-on rejeter H0 ?",
+           answer("oui", correct = TRUE),
+           answer("non"))
+)
+```
+
+```{r}
+ggplot(data = filter(crabs, sp == "B")) +
+  geom_boxplot(aes(x = sex, y = CL)) +
+  theme_classic()
+```
+
+
+## PARTIE 2 - INFLUENCE DE L'ESPECE
+
+La variable ‘sp’ peut-elle expliquer des différences de taille de carapace au sein des individus mâles ?
+Faites les tests appropriés pour répondre à la question. 
+
+###
+
+Dans un premier temps, il faut créer de nouveaux objets avec les valeurs d'intérêt
+```{r comparaison-males, exercise=TRUE}
+
+```
+
+```{r comparaison-males-solution}
+cl_males_bleus <- crabs[crabs$sp == "B" & crabs$sex == "M", "CL"]
+cl_males_orange <- crabs[crabs$sp == "O" & crabs$sex == "M", "CL"]
+```
+
+###
+
+```{r}
+cl_males_bleus <- crabs[crabs$sp == "B" & crabs$sex == "M", "CL"]
+cl_males_orange <- crabs[crabs$sp == "O" & crabs$sex == "M", "CL"]
+```
+
+Il faut ensuite vérifier la normalité des données
+
+```{r normalite-males, exercise=TRUE}
+
+```
+
+```{r normalite-males-solution}
+shapiro.test(cl_males_bleus)
+shapiro.test(cl_males_orange)
+
+```
+
+###
+
+On vérifie l'égalité des variances
+
+```{r variance-males, exercise=TRUE}
+
+```
+
+```{r variance-males-solution}
+var.test(cl_males_bleus, cl_males_orange)
+
+```
+
+###
+
+On compare les moyennes
+
+```{r moyennes-males, exercise=TRUE}
+
+```
+
+```{r moyennes-males-solution}
+t.test(cl_males_bleus, cl_males_orange)
+```
+
+Quelles conclusions tirez-vous de ces tests?
+
+###
+
+```{r}
+ggplot(data = crabs) +
+  geom_boxplot(aes(x = sp, y = CL, fill = sex)) +
+  theme_classic()
+```
+
+Qu'aurait-on pu tester d'autre ?
+
+## TABLES STATISTIQUES
+
+### SHAPIRO
+
+<img src='https://raw.githubusercontent.com/CedricMondy/formationInitiationStatistiques/master/shapiro.png' max-width='100%'>
+
+### FISHER
+
+<img src='https://raw.githubusercontent.com/CedricMondy/formationInitiationStatistiques/master/fisher.png' width='100%'>
+
+### STUDENT
+
+<img src='https://raw.githubusercontent.com/CedricMondy/formationInitiationStatistiques/master/student.png' width='100%'>
+
+## RECAPITULATIF
+
+|                |                                                       |
+| :------------- | :---------------------------------------------------- |
+|                |                                                       |
