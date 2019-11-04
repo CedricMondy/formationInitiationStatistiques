@@ -243,8 +243,9 @@ Quelles conclusions tirez-vous de ces tests?
 
 ```{r}
 ggplot(data = crabs) +
-  geom_boxplot(aes(x = sp, y = CL, fill = sex)) +
-  theme_classic()
+  geom_boxplot(aes(x = sex, y = CL, fill = sp)) +
+  theme_classic() +
+  scale_fill_manual(values = c("#6495ED", "#FF8C00"))
 ```
 
 Qu'aurait-on pu tester d'autre ?
