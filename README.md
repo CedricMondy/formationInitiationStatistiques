@@ -10,7 +10,7 @@ Afin de réaliser les TP de cette formation, vous aurez besoin de télécharger:
 
 Une fois <img src='https://www.r-project.org/logo/Rlogo.png' alt='R' height='18px'> et RStudio installés, décompressez l'archive téléchargée depuis GitHub et double-cliquz sur le fichier Tuto.Rproj.
 
-Ceci ouvrira RStudio avec le bon répertoire courant et les fichiers correspondant aux setup, TP1 et TP2 ouverts.
+Ceci ouvrira RStudio avec le bon répertoire courant et les fichiers correspondant aux setup et différents TP ouverts.
 
 Commencez par exécuter le script 'Initiation aux Statistiques avec R - setup.R' (utiliser le bouton 'Source'), cela installera les packages nécessaires.
 
