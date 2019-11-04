@@ -1,0 +1,482 @@
+---
+title: "Initiation aux Statistiques avec R - TP 1"
+output: 
+  learnr::tutorial:
+    encoding: UTF-8
+    progressive: true
+runtime: shiny_prerendered
+---
+
+```{r setup, include=FALSE}
+library(learnr)
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+**TP1 - Sélections dans un tableau et manipulation des principaux paramètres de position et de dispersion**
+
+## PARTIE 1 - MANIPULATION DE DONNEES
+
+> *Dans ce TP, nous allons utiliser les fonctionnalités de base de <img src='https://www.r-project.org/logo/Rlogo.png' alt='R' height='18px'> en nous concentrant sur la manipulation de tableaux de données (`data.frame`).*
+
+Exemple de données
+
+### DONNEES CONTENUES DANS UN PACKAGE
+
+Nous utiliserons ici le jeu de données `crabs` provenant du package `MASS`. La première étape est donc de charger ce jeu de données en utilisant la fonction `data`.
+
+```{r, echo=TRUE}
+data(crabs, package = "MASS")
+```
+
+### DIMENSIONS
+
+Nous allons maintenant jeter un oeil au tableau `crabs`. Nous allons tout d'abord vérifier ses dimensions.
+
+```{r crabs-dimensions, exercise=TRUE}
+nrow()
+ncol()
+dim()
+```
+
+<div id="crabs-dimensions-hint">
+**Conseil:** Mettre le nom de votre jeu de données dans les parenthèses (e.g. `nrow(data)`).
+</div>
+
+```{r dimension-functions}
+quiz(
+  caption = "Quelles informations retournent ces trois fonctions?",
+  question("nrow",
+           answer("nombre de lignes", correct = TRUE),
+           answer("nombre de colonnes"),
+           answer("nombre de lignes et de colonnes"),
+           random_answer_order = TRUE),
+  question("ncol",
+           answer("nombre de lignes"),
+           answer("nombre de colonnes", correct = TRUE),
+           answer("nombre de lignes et de colonnes"),
+           random_answer_order = TRUE),
+  question("dim",
+           answer("nombre de lignes"),
+           answer("nombre de colonnes"),
+           answer("nombre de lignes et de colonnes", correct = TRUE),
+           random_answer_order = TRUE)
+
+)
+```
+
+> *Pour des vecteurs, la fonction `length` permet d'obtenir la longueur de ceux-ci.*
+
+### CARACTERISTIQUES ET CONTENU
+
+Une première information est de savoir quelles sont les informations stockées dans le tableau. Pour cela, on peut déjà vérifier les noms des colonnes où sont stockées les informations.
+
+```{r crabs-colnames, exercise=TRUE}
+colnames()
+```
+
+Ensuite, nous pouvons avoir un aperçu du contenu du tableau en utilisant la fonction `head` qui permet de voir les premières lignes du tableau.
+
+Regardons les premières lignes du tableau `crabs`.
+
+```{r crabs-head, exercise=TRUE}
+
+```
+
+```{r crabs-head-solution}
+head(crabs)
+```
+
+### SELECTION PAR INDEX {data-allow-skip=TRUE}
+
+Les lignes et colonnes d'un tableau (`data.frame`) sont indexées à partir de 1 dans <img src='https://www.r-project.org/logo/Rlogo.png' alt='R' height='18px'>. Il est donc possible de sélectionner une ou plusieurs lignes/colonnes en spécifiant leurs index. La sélection se fait en utilisant l'opérateur `[]`. 
+
+Pour un vecteur, `[]` permet de sélectionner une valeur basée sur son index:
+```{r vector-selection, exercise=TRUE, exercise.eval=TRUE}
+v <- LETTERS # LETTERS est une constante intégrée à R contenant les lettres en majuscule
+
+v[5]
+```
+
+Pour un tableau, avec deux dimensions, on sépare les index des lignes et des colonnes par une virgule: `[ligne, colonne]`. Si l'une des deux dimensions (lignes ou colonnes) reste non renseignée, tous les index sont sélectionnés pour cette dimension.
+
+Sélection d'une ligne:
+```{r crabs-select-first-row, exercise=TRUE, exercise.eval=TRUE}
+crabs[1,]
+```
+
+Sélection d'une colonne:
+```{r crabs-select-first-col, exercise=TRUE, exercise.eval=TRUE}
+crabs[, 1]
+```
+
+Sélection d'une cellule:
+```{r crabs-select-first-cell, exercise=TRUE, exercise.eval=TRUE}
+crabs[1, 1]
+```
+
+### SELECTION PAR PLUSIEURS INDEX
+
+Il est possible de sélectionner plusieurs lignes/colonnes/cellules en donnant une plage d'index: 
+
+- soit continue en utilisant l'opérateur `:`
+
+```{r, echo=TRUE}
+1:5
+```
+
+- soit continue ou discontinue en utilisant la fonction `c()`:
+
+```{r, echo=TRUE}
+c(1:5, 7, 10)
+```
+
+A vous de tester les sélections multiples:
+
+```{r crabs-select-multiple, exercise=TRUE}
+crabs[,]
+```
+
+### SELECTION NOMINATIVE
+
+Dans le cas de tableau de données (`data.frame`) où les noms de colonnes représentent des variables il est également possible de sélectionner les colonnes en utilisant directement leur nom entre des guillements (`"nom"`). 
+
+Sélectionner la colonne `sp` du tableau `crabs`:
+
+```{r crabs-select-sp, exercise=TRUE}
+
+```
+
+```{r crabs-select-sp-solution}
+crabs[, "sp"]
+```
+
+Sélectionner maintenant les dix premières lignes des colonnes `sp` et `sex`
+
+```{r crabs-select-sp-sex, exercise=TRUE}
+
+```
+
+```{r crabs-select-sp-sex-solution}
+crabs[1:10, c("sp", "sex")]
+```
+
+### {data-allow-skip=TRUE}
+
+> *Dans le cas de sélection d'une seule colonne, on peut également utiliser l'opérateur `$`*
+
+```{r crabs-dollar, exercise=TRUE, exercise.eval=TRUE}
+crabs$sex
+```
+
+### REQUETAGE
+
+Nous pouvons maintenant utiliser la sélection de colonnes pour requêter les données, c'est-à-dire sélectionner des lignes en fonction de leurs valeurs pour une ou plusieurs colonnes.
+
+> *Pour filtrer des données on utilise alors les opérateurs de comparaisons:* 
+>
+> - *`<`; `>`: inférieur à; supérieur à*
+> - *`<=`; `>=`: inférieur ou égale à; supérieur ou égale à*
+> - *`==`; `!=`: égale à; différent de*
+> - *` %in% `: compris dans*
+
+Supposons que l'on veuille se focaliser sur les crabes appartenant à l'espèce 'bleue' ('B'), il nous faut donc sélectionner les lignes du tableau pour lesquelles la colonne `sp` est égale à 'B'. Nous allons également stocker le résultat de cette requête dans un nouvel objet appelé `crabes_bleus`.
+
+> *L'enregistrement de valeurs (unique, vecteur, tableau) dans un objet dans <img src='https://www.r-project.org/logo/Rlogo.png' alt='R' height='18px'> est appelé 'assignement' et se fait avec l'opérateur `<-`:*
+>
+> `a <- sqrt(24)`
+>
+> La valeur correspondant à la racine carré de 24 est ici assignée à (stockée dans) l'objet `a`.
+
+```{r crabs-filter-blues, exercise=TRUE}
+
+```
+
+```{r crabs-filter-blues-hint}
+crabes_bleus <- ...
+```
+
+
+```{r crabs-filter-blues-solution}
+crabes_bleus <- crabs[crabs$sp == "B",]
+crabes_bleus
+```
+
+```{r, include=FALSE}
+crabes_bleus <- crabs[crabs$sp == "B",]
+```
+
+Maintenant on veut savoir combien de crabes bleus il y a et parmi ceux-ci combien sont des mâles.
+
+```{r crabs-filter-blues-males, exercise=TRUE}
+
+```
+
+```{r crabs-filter-blues-males-hint}
+Utiliser une des fonctions vues pour déterminer les dimensions du tableau complet et filtré.
+```
+
+```{r crabs-filter-blues-males-solution}
+# Nombre total de crabes bleus
+nrow(crabes_bleus)
+# Nombre de crabes bleus males
+nrow(crabes_bleus[crabes_bleus$sex == "M",])
+```
+
+### {data-allow-skip=TRUE}
+
+> *Pour connaitre le nombre d'observations par catégorie d'un vecteur, on peut utiliser la fonction `table`*
+
+```{r crabs-table, exercise=TRUE, exercise.eval=TRUE}
+table(crabes_bleus$sex)
+```
+
+### REQUETAGE MULTIPLE
+
+Plusieurs filtres sur les données peuvent être combinés dans une même requête.
+
+> *Pour combiner des filtres on utilise les opérateurs suivants:*
+>
+> - *`&`: ET*,
+> - *`|`: OU*
+
+Filtrer en une seule étape les données correspondant aux crabes de l'espèce bleue et de sexe masculin:
+
+```{r crabs-filter-multiple, exercise=TRUE}
+
+```
+
+```{r crabs-filter-multiple-solution}
+crabs[crabs$sp == "B" & crabs$sex == "M",]
+```
+
+Filtrer les données correspondant aux crabes dont la taille du lobe frontal (`FL`) est soit inférieure à 9, soit supérieure ou égale à 21:
+
+```{r crabs-filter-size, exercise=TRUE}
+
+```
+
+```{r crabs-filter-size-solution}
+crabs[crabs$FL < 9 | crabs$FL >= 21,]
+```
+
+
+## PARTIE 2 - PARAMETRES DE POSITION ET DE DISPERSION
+
+Dans cette deuxième partie, nous allons utiliser un tableau `tab` avec des données fictives d'effectifs de poissons pêchés sur des stations situées à différentes altitudes (100, 200, 300 et 400 mètres). 
+
+```{r}
+tab <- data.frame(
+  Altitude = c(rep(100,4),
+               rep(200,4),
+               rep(300,4),
+               rep(400,4)),
+  Poissons = c(349, 368, 154, 128, 
+               961, 235, 778, 733,
+               775, 536, 195, 828, 
+               1667, 323, 593, 480))
+```
+
+Dans un premier temps, découvrez rapidement ce jeu de données en utilisant les fonctions vues dans la partie précédente.
+
+```{r tab-discover, exercise=TRUE}
+
+```
+
+```{r tab-discover-solution}
+dim(tab)
+head(tab)
+```
+
+On peut également chercher à savoir combien de poissons ont été pêchés au total, pour cela nous pouvons utiliser la fonction `sum`.
+
+```{r tab-sum-fish, exercise=TRUE}
+
+```
+
+```{r tab-sum-fish-solution}
+sum(tab$Poissons)
+```
+
+### PARAMETRES DE POSITION
+
+Les paramètres de position classiquement utilisés sont la moyenne, la médiane et les différents quantiles.
+
+Quelle est la quantité moyenne de poissons pêchés?
+
+```{r tab-mean, exercise=TRUE}
+
+```
+
+```{r tab-mean-hint}
+mean(...)
+```
+
+```{r tab-mean-solution}
+mean(tab$Poissons)
+```
+
+Quelle est la quantité moyenne de poissons pêchés **sur les stations ayant une altitude de 100m**?
+
+```{r tab-mean-100m, exercise=TRUE}
+
+```
+
+```{r tab-mean-100m-solution}
+mean(tab[tab$Altitude == 100, "Poissons"])
+```
+
+La médiane correspond au point milieu d'une série de valeurs avec la moitié des valeurs inférieures ou égales à la médiane et l'autre moitié supérieure.
+
+Calculer la médiane des effectifs de poissons capturés.
+
+```{r tab-median, exercise=TRUE}
+
+```
+
+```{r tab-median-hint}
+median(...)
+```
+
+```{r tab-median-solution}
+median(tab$Poissons)
+```
+
+D'après vous, qu'est-ce qui pourrait expliquer les différences de valeurs entre la moyenne et la médiane?
+
+###
+
+La fonction `hist` permet de tracer des histogrammes décrivant la distribution d'un ensemble de valeurs.
+
+> *Le paramètre `breaks` permet de choisir le nombre ou les limites des classes (selon l'axe x) pour lesquelles les effectifs (axe y) sont calculés*
+> *La fonction `seq` permet d'obtenir une séquence régulière de valeurs en spécifiant la valeur de départ (`from`), la valeur d'arrivée (`to`) et la largeur du pas entre valeurs (`by`)*
+
+```{r, echo=TRUE}
+hist(tab$Poissons, breaks = seq(from = 0, to = 2000, by = 250))
+# Avec la fonction abline on ajoute une ligne, ici une ligne verticale définie
+# par sa coordonnées sur l'axe des x (paramètre v) avec une couleur définie par
+# le paramètre col et l'épaisseur du trait définie par le paramètre lwd
+abline(v = mean(tab$Poissons), col = "red", lwd = 2)
+abline(v = median(tab$Poissons), col = "blue", lwd = 2)
+```
+
+Les quantiles permettent de décrire une série de valeurs en identifiant quelles valeurs pour lesquelles un certain pourcentage de cette série sont inférieure ou égale aux quantiles. 
+
+Calculer les quantiles correspondant à 10, 30 et 70% de la série d'effectifs de poissons capturés.
+
+```{r tab-quantiles, exercise=TRUE}
+
+```
+
+```{r tab-quantiles-hint}
+# Le paramètre probs sert à indiquer quel(s) quantile(s) on veut calculer. Les
+# valeurs données dans probs sont des proportions (comprises entre 0 et 1)
+quantile(..., probs = c(...))
+```
+
+```{r tab-quantiles-solution}
+quantile(tab$Poissons, probs = c(0.1, 0.3, 0.7))
+```
+
+### {data-allow-skip=TRUE}
+
+A quoi sont équivalents les résultats obtenus avec la ligne de code suivante?
+
+```{r tab-quantile-mediane, exercise=TRUE}
+quantile(tab$Poissons, probs = c(0, 0.5, 1))
+```
+
+###
+**Réponse:** Les quantiles 0, 50 et 100 correspondent respectivement au minimum, à la médiane et au maximum de la série de donnée.
+
+###
+> *La fonction `summary` permet d'obtenir rapidement différentes informations sur la distribution d'un vecteur ou de l'ensemble des variables d'un tableau de données.*
+
+```{r, echo=TRUE}
+summary(tab$Poissons)
+summary(tab)
+```
+
+Les quantiles 25 et 75 sont également appelés les premier et troisième quartiles.
+
+### PARAMETRES DE DISPERSION
+
+L'étendue d'une série de données est calculée à partir des valeurs minimales (fonction `min`) et maximales (fonction `max`). Nous avons vu que les quantiles 0 et 100 correspondent également à ces valeurs. Une autre manière d'obtenir les limites de la distribution directement en utilisant la fonction `range`.
+
+```{r, echo=TRUE}
+range(tab$Poissons)
+```
+
+Calculer l'étendue des effectifs capturés de poisson:
+
+```{r tab-etendue, exercise=TRUE}
+
+```
+
+```{r tab-etendue-hint}
+La fonction `diff` permet de calculer la différence entre deux valeurs.
+```
+
+```{r tab-etendue-solution}
+max(tab$Poissons) - min(tab$Poissons)
+diff(range(tab$Poissons))
+```
+
+###
+
+Calculer la **var**iance des effectifs de poissons capturés dans les sites ayant une altitude supérieure à 250m.
+
+```{r tab-var, exercise=TRUE}
+
+```
+
+```{r tab-var-solution}
+var(tab[tab$Altitude >= 250, "Poissons"])
+```
+
+###
+
+Calculer l'écart-type (**s**tandard **d**eviation en anglais) de cette même série de deux manières différentes.
+
+```{r tab-sd, exercise=TRUE}
+
+```
+
+```{r tab-sd-solution}
+sd(tab[tab$Altitude >= 250, "Poissons"])
+sqrt(var(tab[tab$Altitude >= 250, "Poissons"]))
+```
+
+## RECAPITULATIF
+
+|                |                                                       |
+| :------------- | :---------------------------------------------------- |
+| `data()`       | Charge des données contenues dans un package          |
+| `nrow()`       | Renvoi le nombre de  lignes                           |
+| `ncol()`       | Renvoi le nombre de  colonnes                         |
+| `dim()`        | Renvoi le nombre de  lignes et de colonnes du tableau |
+| `length()`     | Renvoi la taille  d’un vecteur                        |
+| `colnames()`   | Renvoi les noms de colonnes                           |
+| `head()`       | Affiche les premières lignes                          |
+| `[]`           | Sélectionne des éléments d'un vecteur ou tableau      |
+| `c()`          | Combine des valeurs  pour former un vecteur           |
+| `$`            | Sélectionne une colonne d'un tableau                  |
+| `<; >; <=; >=; ==; !=` | Opérateurs de comparaison                     |
+| `%in%`         | Opérateur d'inclusion                                 |
+| `<-`           | Opérateur d'assignement                               |
+| `table()`      | Dénombre les  groupements par modalités               |
+| `&; |`         | Opérateurs logiques (ET; OU)                          |
+| `data.frame()` | Crée un tableau                                       |
+| `rep()`        | Répète n fois une valeur x donnée                     |
+| `sum()`        | Calcule la somme                                      |
+| `mean()`       | Calcule la moyenne                                    |
+| `median()`     | Calcule la médiane                                    |
+| `hist()`       | Trace un histogramme                                  |
+| `quantile()`   | Calcule un quantile  donné                            |
+| `summary()`    | Renvoi le minimum,  maximum, moyenne, quartiles       |
+| `min()`        | Calcule le minimum                                    |
+| `max()`        | Calcule le maximum                                    |
+| `range()`      | Calcule le minimum et le maximum                      |
+| `diff()`       | Calcule la différence entre des valeurs successives   |
+| `var()`        | Calcule la variance                                   |
+| `sd()`         | Calcule l’écart-type                                  |
+| `sqrt()`       | Calcule la racine  carrée                             |
