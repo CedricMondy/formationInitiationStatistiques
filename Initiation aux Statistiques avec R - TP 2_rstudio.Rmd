@@ -1,0 +1,430 @@
+---
+title: "R Notebook"
+output: 
+    html_notebook:
+        encoding: UTF-8
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+library(here)
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+```
+
+**TP2 - Import-Export et Lois de probabilités**
+
+## PARTIE 1 - IMPORT/EXPORT
+
+Les deux formats de fichiers qui seront présentés ici sont les formats `.txt` et `.csv`.
+
+### IMPORT
+
+Dans R, il existe plusieurs fonctions pour lire les fichiers textes (e.g. `read.delim`, `read.csv`, `read.csv2`...). La plupart de ces fonctions sont en fait des variantes de la fonction `read.table` avec des choix différents d'options par défaut. Les principaux paramètres concernés sont:
+
+- `header` : TRUE/FALSE est-ce que la première ligne du tableau importé comporte les noms des colonnes;
+- `sep` : quel est le séparateur de colonnes utilisé;
+- `dec` : quel est le caractère utilisé pour séparer les entiers des décimales
+
+| Fonction       |   header  |  sep  |  dec  |
+| :------------- |:---------:|:-----:|:-----:|
+| `read.table`   |  FALSE    | ""    | "."   |
+| `read.delim`   |  TRUE     | "\t"  | "."   |
+| `read.csv`     |  TRUE     | ","   | "."   |
+| `read.csv2`    |  TRUE     | ";"   | ","   |
+
+Dans certains pays d'Europe (dont la France), le format privilégié est souvent le format **.csv** avec le séparateur de colonnes **";"** et les décimales sont séparées par des **","**.
+
+Le paramètre `file` doit être renseigné avec le chemin du fichier à importer.
+
+Deux fichiers textes vous ont été distribués, le contenu (visible par exemple dans un éditeur de texte) est organisé de la manière suivante:
+
+**alt_poisson.txt**
+
+ALT	Effectif<br>
+38	349<br>
+55	368<br>
+67	154<br>
+80	128<br>
+114	961<br>
+
+**Cohortes_TRF.csv**
+
+CODE_OPERATION;CODE_TAXON;RESULTAT;TAILLE;Seuil;diff;cohorte_0plus;cohorte_adulte<br>
+10090001859;TRF;1;121;87,02767867;33,97232133;0;1<br>
+10090001859;TRF;1;236;87,02767867;148,9723213;0;1<br>
+10090001859;TRF;1;209;87,02767867;121,9723213;0;1<br>
+10090001859;TRF;1;38;87,02767867;-49,02767867;1;0<br>
+10090001859;TRF;1;34;87,02767867;-53,02767867;1;0<br>
+
+###
+
+Comment importeriez-vous le premier fichier (.txt) ?
+
+```{r import-file-txt}
+# alt_poisson.txt
+
+```
+
+Et le second (.csv) ?
+
+```{r import-file-csv}
+# Cohortes_TRF.csv
+
+```
+
+###
+
+> *Lorsque le paramètre `file` est directement renseigné, plusieurs options sont possibles:*
+>
+> - *Si les fichiers sont placés directement dans le répertoire courant (`get_wd`), on peut ne renseigner que le nom du fichier;*
+> - *Si les fichiers sont placés dans un sous-répertoire du dossier courant, on peut donner le chemin relatif (en partant du répertoire courant);*
+> - *Sinon, il faut donner le chemin absolu du fichier.*
+> 
+> *Il est toujours plus sûr de donner le chemin absolu des fichiers mais cela peut se réveler fastidieux, le package `here` permet de faciliter cette démarche.*
+
+### EXPORT
+
+De manière similaire que pour l'import de données, il existe plusieurs fonctions pour exporter (écrire dans un fichier) des tableaux de données créés dans R. Les fonctions de base pour exporter des tableaux dans un fichier texte sont des variantes de la fonction `write.table` avec des options par défaut différentes.
+
+| Fonction        |   header  |  sep  |  dec  |
+| :-------------- |:---------:|:-----:|:-----:|
+| `write.table`   |  FALSE    | " "   | "."   |
+| `write.csv`     |  TRUE     | ","   | "."   |
+| `write.csv2`    |  TRUE     | ";"   | ","   |
+
+De manière similaire aux fonctions `read.xxx`, les fonctions `write.xxx` prennent le chemin du fichier (potentiellement à créer) comme valeur du paramètre `file`. 
+
+On peut choisir de manière interactive le fichier à importer ou à écrire en utilisant la fonction `file.choose()`.
+
+Exporter le tableau `crabs` du package MASS (cf. TP précédent) sur votre ordinateur en choisissant de manière interactive la destination. Utiliser le format '.txt'avec des tabulations comme séparateurs de colonnes.
+
+```{r export-file-txt}
+# Pensez à bien mettre l'extension .txt au nom de fichier
+
+```
+
+Procéder au même export mais au format '.csv' avec des point-virgules comme séparateurs de colonnes.
+
+```{r export-file-csv}
+# Pensez à bien mettre l'extension .csv au nom de fichier
+
+```
+
+Vérifier que les fichiers ont bien été crées.
+
+### DONNEES MANQUANTES
+
+Ouvrir le fichier 'donnees_RNT.csv' dans un éditeur de texte ou un tableur. Regarder les premières valeurs des champs 'CdStatutAnaTemp' et 'MnemoStatutAna'. Que pouvez-vous dire?
+
+Importer maintenant ce fichier dans R de la même manière que les précédents et chercher ces mêmes valeurs.
+
+Comment ont-elles été traitées?
+
+```{r import-na}
+# importer le fichier et afficher les premières lignes
+
+```
+
+###
+
+Les valeurs manquantes (cellules vides) sont automatiquement remplacées par des `NA` (**N**ot **A**vailable: non disponible) au moment de l'import dans R.
+
+## PARTIE 2 - LOIS DE PROBABILITE
+
+### LOI NORMALE
+
+Nous reprendrons ici l’exemple vu en cours, soit la taille des truitelles sur 280 opérations de pêche.
+
+Importez le jeu de données « Cohortes_TRF.csv » dans votre session dans l'objet `donnees_cohortes`, puis sélectionnez les juvéniles de truites en vous aidant du champ `cohorte_0plus` et assignez ce nouveau tableau dans l'objet `donnees_juveniles`.
+
+```{r norm-import}
+donnes_cohortes   <- 
+
+donnees_juveniles <- 
+```
+
+Calculez la moyenne et l’écart-type de la variable ‘TAILLE’. Pour faciliter la suite du TP, sauvegardez ces valeurs dans des objets pour pouvoir les réutiliser plus tard.
+
+```{r norm-taille-mean-sd}
+# utiliser des noms signifiants pour les objets crées (e.g. taille_moyenne)
+```
+
+Pour les différentes distributions statistiques, R fournit un ensemble de fonctions permettant de réaliser différents calculs:
+
+- **d**norm : calcule la densité (probabilité) pour une valeur spécifique;
+- **p**norm : calcule la probabilité cumulée d'avoir au maximum une certaine valeur;
+- **q**norm : calcule le quantile (valeur limite) correspondant à une certaine probabilité cumulée;
+- **r**norm : génère des valeurs aléatoires tirée de la distribution
+
+Quelle est la probabilité qu’un poisson mesure exactement 118 mm ? P(X=118)
+
+```{r}
+# choisir la bonne fonction et penser à regarder l'aide (e.g. ?rnorm) pour
+# savoir comment l'utiliser
+```
+
+Quelle est la probabilité qu’un poisson mesure au maximum 48 mm ? P(X ≤ 48)
+
+```{r}
+#
+
+```
+
+Expliquer l'équation suivante, puis trouver la réponse sous R : P(X > 48)
+
+```{r}
+# Garder à l'esprit que la probabilité maximale est de 1
+
+```
+
+Quelle est la taille limite pour laquelle on a 95% de chance d’avoir un poisson plus petit ? P(X ≤ x) = 0.95
+
+```{r}
+#
+
+```
+
+Générer un tirage aléatoire de 10 valeurs à partir de la distribution définie par la moyenne et l'écart-type des mesures de taille des juvéniles. 
+
+```{r}
+#
+
+```
+
+###
+
+```{r, message=FALSE, echo=FALSE}
+# Exécuter ce bloc de code pour obtenir un graphique visualisant les résultats précédents.
+donnees_cohortes <- read.csv2(file = here("Cohortes_TRF.csv"))
+donnees_juveniles <- donnees_cohortes[donnees_cohortes$cohorte_0plus == 1,]
+
+taille_moyenne <- mean(donnees_juveniles$TAILLE)
+taille_ecart_type <- sd(donnees_juveniles$TAILLE)
+
+pn <- list(mu = taille_moyenne, sd = taille_ecart_type) 
+dt_norm <- tibble(
+  x = seq(pn$mu - 4*pn$sd, pn$mu + 4*pn$sd, length.out = 1000),
+  density = dnorm(x, pn$mu, pn$sd),
+  cumulative = pnorm(x, pn$mu, pn$sd)
+)
+
+d_mean <- dnorm(x = taille_moyenne, 
+                mean = taille_moyenne, 
+                sd = taille_ecart_type)
+
+d_118 <- dnorm(x = 118, 
+               mean = taille_moyenne, 
+               sd = taille_ecart_type)
+
+d_48 <- dnorm(x = 48, 
+              mean = taille_moyenne, 
+              sd = taille_ecart_type)
+p_48 <- pnorm(q = 48, 
+              mean = taille_moyenne, 
+              sd = taille_ecart_type)
+
+q_95 <- qnorm(p = .95,
+              mean = taille_moyenne,
+              sd = taille_ecart_type)
+
+d_95 <- dnorm(x = q_95,
+              mean = taille_moyenne,
+              sd = taille_ecart_type)
+
+
+ggplot(dt_norm) +
+  geom_histogram(data = donnees_juveniles, 
+                 aes(x = TAILLE, y = ..density..),
+                 binwidth = 5, fill = "lightgrey", colour = "grey") +
+  geom_line(aes(x, density), size = 1) +
+  geom_area(data = filter(dt_norm,
+                          x > 47 & cumulative <= .95),
+            aes(x = x, y = density),
+            fill = "purple", alpha = .5) +
+  annotate(geom = "segment",
+           x = q_95, xend = q_95,
+           y = 0, yend = d_95,
+           linetype = "dashed", colour = "purple", size = 1) +
+  annotate(geom = "label",
+           x = q_95, y = d_95,
+           hjust = 0, vjust = -.25,
+           label = paste0("P(X \u2264 ", round(q_95), ") = ", 0.95),
+           fill = "purple", alpha = .5) +
+  annotate(geom = "point",
+           x = q_95, y = 0,
+           colour = "purple") +
+  annotate(geom = "text",
+           x = q_95, y = 0, hjust = .5, vjust = 1.2,
+           colour = "purple",
+           label = round(q_95)) +
+  geom_area(data = filter(dt_norm, x <= 48), 
+            aes(x = x, y = density),
+            fill = "red", alpha = .5) +
+  annotate(geom = "label",
+           x = 40, y = d_48,
+           label = paste0("P(X \u2264 48) = ", round(p_48, 2)),
+           hjust = 1, vjust = 1,
+           fill = "red", alpha = .6) +
+  annotate(geom = "segment",
+           x = taille_moyenne, xend = taille_moyenne,
+           y = 0, yend = d_mean,
+           linetype = "dashed", colour = "blue", size = 1) +
+  annotate(geom = "text", 
+           x = taille_moyenne, y = d_mean, 
+           colour = "blue",
+           label = paste("Taille moyenne :", round(taille_moyenne), "mm"),
+           hjust = 0, vjust = 0) +
+  annotate(geom = "segment",
+           x = 118, xend = 118, 
+           y = 0, yend = d_118,
+           linetype = "dashed", 
+           colour = "darkgreen", size = 1) +
+  annotate(geom = "segment",
+           x = -10, xend = 118,
+           y = d_118, yend = d_118,
+           linetype = "dashed", colour = "darkgreen",
+           size = 1) +
+  annotate(geom = "point",
+           x = 118, y = d_118,
+           colour = "darkgreen") +
+  annotate(geom = "text",
+           x = 118, y = d_118,
+           colour = "darkgreen",
+           label = paste0("P(X = 118) = ", round(100 * d_118, 2) / 100),
+           hjust = -.1, vjust = -.25) +
+  labs(x = "TAILLE (mm)", y = "densité") +
+  coord_cartesian(xlim = c(0, max(dt_norm$x) * 1.05),
+                  ylim = c(-.001, ceiling(1000 * d_mean) / 1000)) +
+  theme_classic()
+```
+
+### LOI BINOMIALE
+
+Je sais que les juvéniles représentent 40% de ma population de truite. Sur 10 truites pêchées quelle est la probabilité d’observer 3 juvéniles ?
+
+> **Conseil:** Une distribution binomiale est paramétrée par la taille de l'échantillon et par la probabilité de succès (ici d'observer un juvénile).
+> le suffixe des fonctions d..., p..., q... et r... pour la loi binomiale est binom 
+
+```{r}
+
+```
+
+###
+
+A noter que la probabilité d'observer 3 juvéniles est la même que celle d'observer 7 adultes (qui ont une probabilité d'observation de 0,6):
+
+```{r}
+
+```
+
+###
+
+Sur 10 truites pêchées quelle est la probabilité d’observer au moins 3 adultes ?
+
+```{r}
+
+```
+
+> **Conseil:** Observer au moins 3 adultes est le complément d'en observer au maximum 2
+
+```{r}
+
+```
+
+Entre 5 et 8 adultes compris ? 
+
+```{r}
+
+```
+
+###
+
+```{r, message=FALSE, echo=FALSE}
+# Exécuter ce bloc de code pour obtenir un graphique visualisant les résultats précédents.
+
+pop_sim <- 
+  tibble(juveniles = 1:10) %>% 
+  mutate(densite = dbinom(x = juveniles, size = 10, prob = .4),
+         adultes = 10 - juveniles) %>% 
+  pivot_longer(cols = c("juveniles", "adultes"), names_to = "stade", values_to = "effectif") %>% 
+  mutate(effectif = as.integer(effectif),
+         stade = fct_relevel(stade, "juveniles", "adultes")) %>% 
+  mutate(opacite = case_when(
+    stade == "juveniles" & effectif <= 7 ~ 1,
+    stade == "adultes" & effectif >= 5 & effectif <= 8 ~ 1,
+    TRUE ~ .4
+  ))
+
+salmo_pal <- c("#EED58CFF", "#E6452EFF")
+
+d_3 <- dbinom(x = 3, size = 10, prob = .4)
+p_7 <- pbinom(q = 7, size = 10, prob = .4)
+p_5_8 <- pbinom(q = 8, size = 10, prob = .6) - pbinom(q = 4, size = 10, prob = .6)
+
+
+ggplot(data = pop_sim, aes(x = effectif, y = densite)) +
+  geom_col(aes(fill = stade, alpha = opacite), position = "dodge",
+           colour = "black") +
+  geom_point(data = filter(pop_sim, effectif == 3, stade == "juveniles"),
+             aes(x = effectif - .25)) +
+  annotate(geom = "segment",
+           x = 0, xend = 2.75,
+           y = d_3, yend = d_3,
+           linetype = "dashed") +
+  annotate(geom = "text",
+           x = mean(c(0, 2.75)), y = d_3,
+           label = paste0("P(X = 3) = ", round(d_3, 2)),
+           hjust = .5, vjust = -.25) +
+  annotate(geom = "label",
+           x = 1.5, y = .15,
+           fill = salmo_pal[1],
+           label = paste0("P(X \u2264 7) = ", round(p_7, 2))) +
+  annotate(geom = "label",
+           x = 8.5, y = .15,
+           fill = salmo_pal[2],
+           label = paste0("P(5 \u2264 X \u2264 8) = ", round(p_5_8, 2))) +
+  scale_x_continuous(breaks = 1:10) +
+  scale_fill_manual(values = salmo_pal) +
+  scale_alpha_identity() +
+  coord_cartesian(xlim = c(.5, 10)) +
+  theme_classic()
+
+```
+
+
+### LOI DE POISSON
+
+Quelle est la probabilité P(X=2) d’une loi de poisson de paramètre λ = 3 ?
+
+> le suffixe des fonctions d..., p..., q... et r... pour la loi de Poisson est pois 
+
+
+```{r}
+
+```
+
+Dans une distribution de Poisson de paramètre λ = 2, quelle est la probabilité d'obtenir au maximum 4 succès?
+
+```{r}
+
+```
+
+## RECAPITULATIF
+
+|                |                                                       |
+| :------------- | :---------------------------------------------------- |
+| `read.table()` | Importer un fichier texte                             |
+| `read.csv()`   | Importer un fichier csv                               |
+| `read.csv2()`  | Importer un fichier csv                               |
+| `write.table()`| Exporter un fichier au format texte                   |
+| `write.csv2()` | Exporter un fichier au format csv                     |
+| `file.choose()`| Sélectionner interactivement un fichier               |
+| `dnorm()`      | Trouver P(X=x) au sein d’une loi normale              |
+| `pnorm()`      | Trouver P(X≤x) au sein d’une loi normale              |
+| `qnorm()`      | Trouver P=P(X=x) au sein d’une loi normale            |
+| `rnorm()`      | Tirage aléatoire au sein d’une loi normale            |
+| `dbinom()`     | Trouver P(X=x) au sein d’une loi binomiale            |
+| `pbinom()`     | Trouver P(X≤x) au sein d’une loi binomiale            |
+| `dpois()`	     | Trouver P(X=x) au sein d’une loi de Poisson           |
+| `ppois()`      | Trouver P(X≤x) au sein d’une loi de Poisson           |

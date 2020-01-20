@@ -1,0 +1,177 @@
+---
+title: "Initiation aux Statistiques avec R - TP 3"
+output: 
+    html_notebook:
+        encoding: UTF-8
+---
+
+```{r setup, include=FALSE}
+library(tidyverse)
+
+knitr::opts_chunk$set(echo = TRUE, eval = TRUE)
+```
+
+**TP3 - Test d'hypothèse**
+
+##
+
+L’objectif de ce TP est d’effectuer des tests d’hypothèse sur R.
+
+Nous travaillerons sur la variable "CL" du tableau "crabs" dans le package MASS.
+
+Nous considérerons toujours un risque alpha = 5%. Les tables statistiques sont fournies en fin de tutoriel.
+
+Chargez tout d'abord les données.
+
+```{r load-data}
+
+```
+
+## PARTIE 1 - INFLUENCE DU SEXE
+
+### A - TEST DE SHAPIRO
+
+Vous allez tester la normalité des données des mâles et des femelles des crabes bleus.
+
+Avant d’effectuer le test de Shapiro, formulez les hypothèses H0 et H1. 
+
+###
+
+> H0 : 
+>
+> H1 : 
+
+```{r shapiro}
+
+```
+
+Quelle est la valeur de la statistique de référence (regardez la table statistique) ?
+
+###
+
+W~alpha=0.05|n=50~ = 0.947
+
+La p-value est-elle supérieure ou inférieure à alpha?
+
+D'après la comparaison de W avec W~alpha=0.05|n=50~ et la valeur de la p-value, les données suivent-elles une loi normale?
+
+### B - TEST DE FISHER
+Tester l'égalité des variances avec le test de Fisher.
+
+Formulez les hypothèses H1 et H0.
+
+###
+
+> H0: 
+> 
+> H1: 
+
+```{r fisher}
+
+```
+
+Quelle est la valeur de la statistique de référence ?
+
+###
+
+F~50/50~ = 1.60
+
+D'après la comparaison de F avec F~50/50~ et la valeur de la p-value, peut-on rejeter H0?
+
+### C - TEST DE STUDENT
+
+Vous allez tester l'égalité de la taille moyenne des carapaces entre les deux sexes de crabes bleus.
+
+Formulez les hypothèses H0 et H1
+
+###
+
+> H0: 
+>
+> H1: 
+
+```{r student}
+
+```
+
+Quelle est la valeur de la statistique de référence ?
+
+###
+
+t~alpha=0.05/ddl=120~ = 1.98 < t~alpha=0.05/ddl=98~ <t~alpha=0.05/ddl=80~ = 2
+
+D'après la comparaison de t avec t~alpha=0.05/ddl=98~ et la valeur de la p-value, peut-on rejeter H0?
+
+```{r}
+# Comparaison graphique de la taille de carapce entre les deux sexes
+ggplot(data = filter(MASS::crabs, sp == "B")) +
+  geom_boxplot(aes(x = sex, y = CL)) +
+  theme_classic()
+```
+
+
+## PARTIE 2 - INFLUENCE DE L'ESPECE
+
+La variable ‘sp’ peut-elle expliquer des différences de taille de carapace au sein des individus mâles ?
+Faites les tests appropriés pour répondre à la question. 
+
+###
+
+Dans un premier temps, il faut créer de nouveaux objets avec les valeurs d'intérêt
+```{r comparaison-males}
+
+```
+
+###
+
+Il faut ensuite vérifier la normalité des données
+
+```{r normalite-males}
+
+```
+
+###
+
+On vérifie l'égalité des variances
+
+```{r variance-males}
+
+```
+
+###
+
+On compare les moyennes
+
+```{r moyennes-males}
+
+```
+
+Quelles conclusions tirez-vous de ces tests?
+
+###
+
+Qu'aurait-on pu tester d'autre ?
+
+
+```{r}
+# Comparaison graphique espèces/sexe
+ggplot(data = crabs) +
+  geom_boxplot(aes(x = sex, y = CL, fill = sp)) +
+  theme_classic() +
+  scale_fill_manual(values = c("#6495ED", "#FF8C00"))
+```
+
+## TABLES STATISTIQUES
+
+### SHAPIRO
+
+<img src='https://raw.githubusercontent.com/CedricMondy/formationInitiationStatistiques/master/shapiro.png' max-width='100%'>
+
+### FISHER
+
+<img src='https://raw.githubusercontent.com/CedricMondy/formationInitiationStatistiques/master/fisher.png' width='100%'>
+
+### STUDENT
+
+<img src='https://raw.githubusercontent.com/CedricMondy/formationInitiationStatistiques/master/student.png' width='100%'>
+
